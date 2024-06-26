@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 contract ProposalContract {
 
-    address owner;
+    address public owner;
     uint256 private counter;
 
     struct Proposal {
@@ -69,7 +69,7 @@ contract ProposalContract {
         if ((proposal.total_vote_to_end - total_vote == 1) && (choice == 1 || choice == 2 || choice == 0)) {
             proposal.is_active = false;
             proposal.current_state = calculateCurrentState();
-            delete voted_addresses; // Clear the array by reinitializing it
+            delete voted_addresses; // Clear the array by resetting it
         }
     }
 
@@ -87,12 +87,29 @@ contract ProposalContract {
         }
     }
 
-    function isVoted(address _address) private view returns (bool) {
-        for (uint256 i = 0; i < voted_addresses.length; i++) {
+    function terminateProposal() external onlyOwner active {
+        proposal_history[counter].is_active = false;
+    }
+
+    // ****************** Query Functions ***********************
+
+    function isVoted(address _address) public view returns (bool) {
+        for (uint i = 0; i < voted_addresses.length; i++) {
             if (voted_addresses[i] == _address) {
                 return true;
             }
         }
         return false;
     }
+
+    function getCurrentProposal() external view returns (Proposal memory) {
+        return proposal_history[counter];
+    }
+
+    function getProposal(uint256 number) external view returns (Proposal memory) {
+        return proposal_history[number];
+    }
+
 }
+
+
